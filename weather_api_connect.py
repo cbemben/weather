@@ -281,4 +281,5 @@ if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read('config.ini')
     WA = WeatherApiConnect(config.items('TimePeriod','startdate'),config.items('TimePeriod','enddate'),
-                           dict(config.items('LocationDetail'), 'c:/users/pancake/raw-data')
+                           dict(config.items('LocationDetail')), os.environ['DARKSKY_TOKEN'],
+                            'c:/users/pancake/raw-data')
