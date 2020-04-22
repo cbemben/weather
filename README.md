@@ -1,2 +1,3 @@
-# weather
-build historic weather data by day and hour based on latitude and longitude
+## Weather API Connect Using Darksky
+
+This repository allows a user to create and maintian weather data for specific geographies.
