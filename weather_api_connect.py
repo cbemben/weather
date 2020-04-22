@@ -175,8 +175,8 @@ class WeatherApiConnect:
     def get_csv_files_for_appending(self):
         dir_path = self._data_dir
         #open or create file
-        hourly_path = PurePath(dir_path).joinpath('cmi-fact-weather-hourly.csv')
-        daily_path = PurePath(dir_path).joinpath('cmi-fact-weather-daily.csv')
+        hourly_path = PurePath(dir_path).joinpath('weather-hourly.csv')
+        daily_path = PurePath(dir_path).joinpath('weather-daily.csv')
 
         dtyp = {"time": str,
                 "summary": str,
@@ -247,7 +247,7 @@ class WeatherApiConnect:
 
     def delete_last_two_weeks_of_records(self):
         """ look in csv file and delete the future dates, they will be overwritten with fresh data
-            The darksky FAQ's mention that historical data can changes can lag up to 2 weeks.
+            The darksky FAQ's mention that historical data can change and can lag up to 2 weeks.
             This method purges records within the last 2 weeks as part of the daily refresh """
         two_weeks = pandas.to_datetime(datetime.today().date() - timedelta(days=14))
         self._df_daily = self._df_daily[self._df_daily['time'] < two_weeks]
@@ -256,15 +256,14 @@ class WeatherApiConnect:
 
     def write_data_to_file(self):
         """ write the historical that is needed and the future forecast """
-        # dir_path = '/Volumes/sh/Srd/Data Science Team/raw-data/weather-data'
         dir_path = self._data_dir
 
         #open or create file
-        daily_path = PurePath(dir_path).joinpath('cmi-fact-weather-daily.csv')
-        daily_bu_path = PurePath(dir_path).joinpath('cmi-fact-weather-daily-bu.csv')
+        daily_path = PurePath(dir_path).joinpath('weather-daily.csv')
+        daily_bu_path = PurePath(dir_path).joinpath('weather-daily-bu.csv')
 
-        hourly_path = PurePath(dir_path).joinpath('cmi-fact-weather-hourly.csv')
-        hourly_bu_path = PurePath(dir_path).joinpath('cmi-fact-weather-hourly-bu.csv')        
+        hourly_path = PurePath(dir_path).joinpath('weather-hourly.csv')
+        hourly_bu_path = PurePath(dir_path).joinpath('weather-hourly-bu.csv')        
         #backup existing data before rewriting csv
         os.remove(daily_bu_path)
         os.remove(hourly_bu_path)
@@ -278,6 +277,8 @@ class WeatherApiConnect:
         self._df_hourly.to_csv(hourly_path, index=False)
 
 if __name__ == '__main__':
-    from dependencymanager import DependencyManager
-    DM = DependencyManager()
-    WA = DM.get_instance('WeatherApiConnect')
+    import configparser
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    WA = WeatherApiConnect(config.items('TimePeriod','startdate'),config.items('TimePeriod','enddate'),
+                           dict(config.items('LocationDetail'), 'c:/users/pancake/raw-data')
