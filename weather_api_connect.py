@@ -276,10 +276,20 @@ class WeatherApiConnect:
         self._df_daily.to_csv(daily_path, index=False)
         self._df_hourly.to_csv(hourly_path, index=False)
 
+    def check_for_required_files(self, file_name):
+        storage_path = str(Path.home())+'/raw-data'
+        file_path = storage_path+'/'+file_name
+        if Path(file_path).exists() is False:
+            with open(file_path,'wb') as f:
+               csvWriter = csv.writer(f,delimiter=',')
+               count = 0
+               csvWriter
+
+
 if __name__ == '__main__':
     import configparser
     config = configparser.ConfigParser()
     config.read('config.ini')
     WA = WeatherApiConnect(config['TimePeriod']['startdate'],config['TimePeriod']['enddate'],
                            dict(config.items('LocationDetail')), os.environ['DARKSKY_TOKEN'],
-                            'c:/users/pancake/raw-data')
+                            '~/raw-data')
