@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import json
 import os
 import logging
+import csv
 
 from pathlib import Path, PurePath
 
@@ -174,6 +175,16 @@ class WeatherApiConnect:
 
     def get_csv_files_for_appending(self):
         dir_path = self._data_dir
+
+        self._check_for_required_files('weather-daily.csv',
+            list(self._get_master_str('daily').columns))
+        self._check_for_required_files('weather-daily-bu.csv',
+            list(self._get_master_str('daily').columns))
+        self._check_for_required_files('weather-hourly.csv',
+            list(self._get_master_str('hourly').columns))
+        self._check_for_required_files('weather-hourly-bu.csv',
+            list(self._get_master_str('hourly').columns))
+
         #open or create file
         hourly_path = PurePath(dir_path).joinpath('weather-hourly.csv')
         daily_path = PurePath(dir_path).joinpath('weather-daily.csv')
@@ -276,14 +287,14 @@ class WeatherApiConnect:
         self._df_daily.to_csv(daily_path, index=False)
         self._df_hourly.to_csv(hourly_path, index=False)
 
-    def check_for_required_files(self, file_name):
-        data_dir = str(Path.home())+'/'+self._data_dir
-        file_path = data_dir+'/'+file_name
+    def _check_for_required_files(self, file_name: str, var_names):
+        file_path = self._data_dir+'/'+file_name
         if Path(file_path).exists() is False:
-            with open(file_path,'wb') as f:
-               csvWriter = csv.writer(f,delimiter=',')
-               count = 0
-               csvWriter
+            with open(file_path,'w') as f:
+               csvWriter = csv.DictWriter(f, fieldnames = var_names)
+               csvWriter.writeheader()
+               #csvWriter
+               f.close()
 
 
 if __name__ == '__main__':
@@ -292,4 +303,4 @@ if __name__ == '__main__':
     config.read('config.ini')
     WA = WeatherApiConnect(config['TimePeriod']['startdate'],config['TimePeriod']['enddate'],
                            dict(config.items('LocationDetail')), os.environ['DARKSKY_TOKEN'],
-                            'raw-data')
+                            '/Users/FBIMAC/raw-data')
