@@ -7,7 +7,6 @@ import json
 import os
 import logging
 import csv
-
 from pathlib import Path, PurePath
 from thunderclap.utils import check_for_required_files
 
@@ -177,13 +176,13 @@ class WeatherApiConnect:
     def get_csv_files_for_appending(self):
         dir_path = self._data_dir
 
-        self.check_for_required_files('weather-daily.csv',
+        check_for_required_files(dir_path, 'weather-daily.csv',
             list(self._get_master_str('daily').columns))
-        self.check_for_required_files('weather-daily-bu.csv',
+        check_for_required_files(dir_path, 'weather-daily-bu.csv',
             list(self._get_master_str('daily').columns))
-        self.check_for_required_files('weather-hourly.csv',
+        check_for_required_files(dir_path, 'weather-hourly.csv',
             list(self._get_master_str('hourly').columns))
-        self.check_for_required_files('weather-hourly-bu.csv',
+        check_for_required_files(dir_path, 'weather-hourly-bu.csv',
             list(self._get_master_str('hourly').columns))
 
         #open or create file
