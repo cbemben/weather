@@ -1,5 +1,7 @@
 import csv
+import json
 from pathlib import Path
+import pandas
 
 def check_for_required_files(dir_path: str, file_name: str, var_names):
     """Verify the existance of the csv files used to store the api results. If the csv
@@ -21,65 +23,8 @@ def check_for_required_files(dir_path: str, file_name: str, var_names):
            csvWriter.writeheader()
            f.close()
 
-def _get_master_str(self, granularity: str):
-    json_str = {"daily": [{"time": [],
-                            "summary": [],
-                            "icon": [],
-                            "sunriseTime": [],
-                            "sunsetTime": [],
-                            "moonPhase": [],
-                            "precipIntensity": [],
-                            "precipIntensityMax": [],
-                            "precipIntensityMaxTime": [],
-                            "precipProbability": [],
-                            "precipType": [],
-                            "precipAccumulation": [],
-                            "temperatureHigh": [],
-                            "temperatureHighTime": [],
-                            "temperatureLow": [],
-                            "temperatureLowTime": [],
-                            "apparentTemperatureHigh": [],
-                            "apparentTemperatureHighTime": [],
-                            "apparentTemperatureLow": [],
-                            "apparentTemperatureLowTime": [],
-                            "dewPoint": [],
-                            "humidity": [],
-                            "windSpeed": [],
-                            "windGust": [],
-                            "windGustTime": [],
-                            "windBearing": [],
-                            "cloudCover": [],
-                            "uvIndex": [],
-                            "uvIndexTime": [],
-                            "visibility": [],
-                            "temperatureMin": [],
-                            "temperatureMinTime": [],
-                            "temperatureMax": [],
-                            "temperatureMaxTime": [],
-                            "apparentTemperatureMin": [],
-                            "apparentTemperatureMinTime": [],
-                            "apparentTemperatureMax": [],
-                            "apparentTemperatureMaxTime": [],
-                            "pressure": [],
-                            "ozone": []}],
-            "hourly": [{"time": [],
-                            "summary": [],
-                            "icon": [],
-                            "precipIntensity": [],
-                            "precipProbability": [],
-                            "precipType": [],
-                            "precipAccumulation": [],
-                            "temperature": [],
-                            "apparentTemperature": [],
-                            "dewPoint": [],
-                            "humidity": [],
-                            "pressure": [],
-                            "windSpeed": [],
-                            "windGust": [],
-                            "windBearing": [],
-                            "cloudCover": [],
-                            "uvIndex": [],
-                            "visibility": [],
-                            "ozone": []}]}
+def get_master_str(granularity: str):
+    with open('thunderclap/data/darksky_api_return_structure.json') as json_file:   
+        json_str = json.load(json_file)
     master_dict = json_str[granularity][0]
     return pandas.DataFrame.from_dict(master_dict)
