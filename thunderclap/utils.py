@@ -23,7 +23,12 @@ def check_for_required_files(dir_path: str, file_name: str, var_names):
            csvWriter.writeheader()
            f.close()
 
-def get_master_str(granularity: str):
+def get_darksky_api_structure(granularity: str):
+    """generate an empty ``pandas.DataFrame`` with the column that mimics the api return
+    
+    :param str granularity: `daily` or `hourly` will return the column names and order of what
+    darksky returns.
+    """
     with open('thunderclap/data/darksky_api_return_structure.json') as json_file:   
         json_str = json.load(json_file)
     master_dict = json_str[granularity][0]

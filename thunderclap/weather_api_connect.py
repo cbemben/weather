@@ -8,7 +8,7 @@ import os
 import logging
 import csv
 from pathlib import Path, PurePath
-from thunderclap.utils import check_for_required_files
+from thunderclap.utils import check_for_required_files, get_darksky_api_structure
 
 class WeatherApiConnect:
     def __init__(self, startdate: str, enddate: str, latlong: dict, darksky_token: str,
@@ -77,69 +77,6 @@ class WeatherApiConnect:
                       "units":"auto"}
         return requests.get(url=URL, params=PARAMS)
 
-    def _get_master_str(self, granularity: str):
-        json_str = {"daily": [{"time": [],
-                                "summary": [],
-                                "icon": [],
-                                "sunriseTime": [],
-                                "sunsetTime": [],
-                                "moonPhase": [],
-                                "precipIntensity": [],
-                                "precipIntensityMax": [],
-                                "precipIntensityMaxTime": [],
-                                "precipProbability": [],
-                                "precipType": [],
-                                "precipAccumulation": [],
-                                "temperatureHigh": [],
-                                "temperatureHighTime": [],
-                                "temperatureLow": [],
-                                "temperatureLowTime": [],
-                                "apparentTemperatureHigh": [],
-                                "apparentTemperatureHighTime": [],
-                                "apparentTemperatureLow": [],
-                                "apparentTemperatureLowTime": [],
-                                "dewPoint": [],
-                                "humidity": [],
-                                "windSpeed": [],
-                                "windGust": [],
-                                "windGustTime": [],
-                                "windBearing": [],
-                                "cloudCover": [],
-                                "uvIndex": [],
-                                "uvIndexTime": [],
-                                "visibility": [],
-                                "temperatureMin": [],
-                                "temperatureMinTime": [],
-                                "temperatureMax": [],
-                                "temperatureMaxTime": [],
-                                "apparentTemperatureMin": [],
-                                "apparentTemperatureMinTime": [],
-                                "apparentTemperatureMax": [],
-                                "apparentTemperatureMaxTime": [],
-                                "pressure": [],
-                                "ozone": []}],
-                "hourly": [{"time": [],
-                                "summary": [],
-                                "icon": [],
-                                "precipIntensity": [],
-                                "precipProbability": [],
-                                "precipType": [],
-                                "precipAccumulation": [],
-                                "temperature": [],
-                                "apparentTemperature": [],
-                                "dewPoint": [],
-                                "humidity": [],
-                                "pressure": [],
-                                "windSpeed": [],
-                                "windGust": [],
-                                "windBearing": [],
-                                "cloudCover": [],
-                                "uvIndex": [],
-                                "visibility": [],
-                                "ozone": []}]}
-        master_dict = json_str[granularity][0]
-        return pandas.DataFrame.from_dict(master_dict)
-
     def append_api_results(self, granularity: str, results, latlong: str):
         #extract data from response
         result = results.json()[granularity]['data']
@@ -147,7 +84,7 @@ class WeatherApiConnect:
         longitude = results.json()['longitude']
         #convert to a dataframe
         df = pandas.DataFrame.from_dict(result)
-        df = pandas.concat([self._get_master_str(granularity),df], sort=False)
+        df = pandas.concat([get_darksky_api_structure(granularity),df], sort=False)
         #adds descriptive cols to df
         df['latitude'] = latitude
         df['longitude'] = longitude
@@ -177,13 +114,13 @@ class WeatherApiConnect:
         dir_path = self._data_dir
 
         check_for_required_files(dir_path, 'weather-daily.csv',
-            list(self._get_master_str('daily').columns))
+            list(get_darksky_api_structure('daily').columns))
         check_for_required_files(dir_path, 'weather-daily-bu.csv',
-            list(self._get_master_str('daily').columns))
+            list(get_darksky_api_structure('daily').columns))
         check_for_required_files(dir_path, 'weather-hourly.csv',
-            list(self._get_master_str('hourly').columns))
+            list(get_darksky_api_structure('hourly').columns))
         check_for_required_files(dir_path, 'weather-hourly-bu.csv',
-            list(self._get_master_str('hourly').columns))
+            list(get_darksky_api_structure('hourly').columns))
 
         #open or create file
         hourly_path = PurePath(dir_path).joinpath('weather-hourly.csv')
