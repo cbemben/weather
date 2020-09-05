@@ -2,7 +2,7 @@ import requests
 import pandas
 import time
 import itertools
-from datetime import datetime, timedelta 
+from datetime import datetime, timedelta
 import json
 import os
 import logging
@@ -11,6 +11,21 @@ from pathlib import Path, PurePath
 from thunderclap.utils import check_for_required_files, get_darksky_api_structure
 
 class WeatherApiConnect:
+    """ This class is the connector to the darksky api. It also acts as the file 
+    handler at this time. The api calls return daily and hourly climate data and store
+    the data in seperate csv files.
+
+    :param str startdate: the first day climate data should be collected.
+
+    :param str enddate: the last day climate data should be collected.
+
+    :param dict latlong: dictionary of specific latlongs as the key and a descriptive value
+    such as zipcode, block group or other user-defined identifier.
+
+    :param str darksky_token: your darksky token
+
+    :param str data_dir: the location where this process will store the returned data.
+    """
     def __init__(self, startdate: str, enddate: str, latlong: dict, darksky_token: str,
                  data_dir: str):
         self._startdate = startdate
@@ -71,7 +86,8 @@ class WeatherApiConnect:
                       "units":"auto",
                       "extend": "hourly"}
         else:
-            URL = 'https://api.darksky.net/forecast/' + self._darksky_token + '/' + latlong + ',' + date
+            URL = 'https://api.darksky.net/forecast/' + 
+            self._darksky_token + '/' + latlong + ',' + date
         #move params to config
             PARAMS = {"lang":"en",
                       "units":"auto"}
@@ -91,7 +107,8 @@ class WeatherApiConnect:
         df['zipcode'] = self._latlong.get(latlong)
         #append api call to correct df, convert timestamp and return
         if granularity == 'hourly':
-            df['time'] = df['time'].apply(lambda x: time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(x)))
+            df['time'] = df['time'].apply(lambda x: 
+                time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(x)))
             df = self.reorder_columns(df)
             self._df_hourly = df.append(self._df_hourly, sort=False)
             return self._df_hourly
@@ -209,7 +226,6 @@ class WeatherApiConnect:
         #open or create file
         daily_path = PurePath(dir_path).joinpath('weather-daily.csv')
         daily_bu_path = PurePath(dir_path).joinpath('weather-daily-bu.csv')
-
         hourly_path = PurePath(dir_path).joinpath('weather-hourly.csv')
         hourly_bu_path = PurePath(dir_path).joinpath('weather-hourly-bu.csv')        
         #backup existing data before rewriting csv
