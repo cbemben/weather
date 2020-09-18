@@ -11,7 +11,7 @@ from pathlib import Path, PurePath
 from thunderclap.utils import check_for_required_files, get_darksky_api_structure
 
 class WeatherApiConnect:
-    """ This class is the connector to the darksky api. It also acts as the file 
+    """ This class is the connector to the api. It also acts as the file 
     handler at this time. The api calls return daily and hourly climate data and store
     the data in seperate csv files.
 
@@ -52,7 +52,7 @@ class WeatherApiConnect:
 
     def get_historical_data(self):
         all_locs = self.get_list_of_locations()
-        all_dates = self.get_list_of_dates()
+        all_dates = self.get_list_of_dates(self._startdate, self._enddate)
         #get historical
         for latlong, date in itertools.product(all_locs, all_dates):
             date = date.isoformat()
@@ -68,10 +68,15 @@ class WeatherApiConnect:
             self.append_api_results('daily', self._raw_response, latlong)
             self.append_api_results('hourly', self._raw_response, latlong)
 
-    def get_list_of_dates(self):
-        #can this use time.strptime()?
-        start = datetime.strptime(self._startdate, '%Y-%m-%d')
-        end = datetime.strptime(self._enddate, '%Y-%m-%d')
+    def get_list_of_dates(self, startdate: str, enddate: str) -> pandas.DataFrame: 
+        """Generate a complete sequence of dates.
+
+        :param str startdate: the first date of the dataframe.
+
+        :param str enddate: the last date of the dataframe.
+        """
+        start = datetime.strptime(startdate, '%Y-%m-%d')
+        end = datetime.strptime(enddate, '%Y-%m-%d')
         all_days = pandas.date_range(start, end, freq='D')
         return list(all_days)
 
@@ -86,8 +91,7 @@ class WeatherApiConnect:
                       "units":"auto",
                       "extend": "hourly"}
         else:
-            URL = 'https://api.darksky.net/forecast/' + 
-            self._darksky_token + '/' + latlong + ',' + date
+            URL = 'https://api.darksky.net/forecast/' + self._darksky_token + '/' + latlong + ',' + date
         #move params to config
             PARAMS = {"lang":"en",
                       "units":"auto"}
