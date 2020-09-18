@@ -1,3 +1,6 @@
-## Weather API Connect Using Darksky
+# Thunderclap
 
-This repository allows a user to create and maintian weather data for specific lat/long combinations.
+### Overview
+
+**Thunderclap** is a Python package providing the ability to build a weather database 
+using user defined locations (lat/long) and dates. 
