@@ -38,6 +38,7 @@ class WeatherApiConnect:
         self._data_dir = data_dir
         self._app_start_time = None
         self._logger = logging.getLogger(__name__)
+        self._missing_daily_rng = None
 
     def run_daily_refresh(self):
         self._app_start_time = pandas.Timestamp.now()
@@ -52,7 +53,7 @@ class WeatherApiConnect:
 
     def get_historical_data(self):
         all_locs = self.get_list_of_locations()
-        all_dates = self.get_list_of_dates(self._startdate, self._enddate)
+        all_dates = list(self.get_list_of_dates(self._startdate, self._enddate))
         #get historical
         for latlong, date in itertools.product(all_locs, all_dates):
             date = date.isoformat()
@@ -78,7 +79,7 @@ class WeatherApiConnect:
         start = datetime.strptime(startdate, '%Y-%m-%d')
         end = datetime.strptime(enddate, '%Y-%m-%d')
         all_days = pandas.date_range(start, end, freq='D')
-        return list(all_days)
+        return all_days
 
     def get_list_of_locations(self):
         all_locs = self._latlong.keys()
@@ -243,6 +244,22 @@ class WeatherApiConnect:
 
         self._df_daily.to_csv(daily_path, index=False)
         self._df_hourly.to_csv(hourly_path, index=False)
+
+    def validate_complete_sequence_of_dates(self):
+        """Identify incomplete date sequence if it exists. This prevents
+        incomplete data from being written to final file.
+        """
+        min_dt = str(self._df_daily['time'].min().date())
+        max_dt = str(self._df_daily['time'].max().date())
+        cs = pandas.DataFrame(self.get_list_of_dates(min_dt, max_dt), columns=['time'])
+        df = cs.merge(self._df_daily, how='left', on='time')
+        miss_dt = df[df['latitude'].isna()]
+        try:
+            if len(miss_dt) is not 0:
+                self._missing_daily_rng = miss_dt
+                raise ValueError('Broken date sequence in daily file!')
+        except ValueError:
+            raise
 
 
 if __name__ == '__main__':
