@@ -6,8 +6,8 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="thunderclap-pancake", # Replace with your own username
     version="0.0.1",
-    author="Christopher Bemben",
-    author_email="cbemben04@gmail.com",
+    author="cbemben",
+    author_email="",
     description="Build historical weather data for specific US zip codes",
     long_description=long_description,
     long_description_content_type="text/markdown",
